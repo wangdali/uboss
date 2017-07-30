@@ -12,7 +12,7 @@
 
 #include "uboss_lock.h"
 #include "uboss_handle.h"
-#include "uboss_server.h"
+#include "uboss_context.h"
 
 #include <stdlib.h>
 #include <assert.h>

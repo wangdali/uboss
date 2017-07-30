@@ -11,8 +11,8 @@
 #include "uboss.h"
 
 #include "uboss_monitor.h"
-#include "uboss_server.h"
-#include "uboss.h"
+#include "uboss_context.h"
+#include "uboss_log.h"
 #include "uboss_atomic.h"
 
 #include <stdlib.h>

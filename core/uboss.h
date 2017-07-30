@@ -44,19 +44,11 @@
 
 struct uboss_context;
 
-void uboss_error(struct uboss_context * context, const char *msg, ...);
-const char * uboss_command(struct uboss_context * context, const char * cmd , const char * parm);
-uint32_t uboss_queryname(struct uboss_context * context, const char * name);
-int uboss_send(struct uboss_context * context, uint32_t source, uint32_t destination , int type, int session, void * msg, size_t sz);
-int uboss_sendname(struct uboss_context * context, uint32_t source, const char * destination , int type, int session, void * msg, size_t sz);
 
-int uboss_isremote(struct uboss_context *, uint32_t handle, int * harbor);
 
 typedef int (*uboss_cb)(struct uboss_context * context, void *ud, int type, int session, uint32_t source , const void * msg, size_t sz);
 void uboss_callback(struct uboss_context * context, void *ud, uboss_cb cb);
 
-uint32_t uboss_current_handle(void);
-uint64_t uboss_now(void);
 void uboss_debug_memory(const char *info);	// for debug use, output current service memory to stderr
 char * uboss_strdup(const char *str);
 #endif /* UBOSS_H */

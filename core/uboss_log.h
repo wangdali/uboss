@@ -27,5 +27,6 @@ FILE * uboss_log_open(struct uboss_context * ctx, uint32_t handle);
 void uboss_log_close(struct uboss_context * ctx, FILE *f, uint32_t handle);
 void uboss_log_output(FILE *f, uint32_t source, int type, int session, void * buffer, size_t sz);
 
+void uboss_error(struct uboss_context * context, const char *msg, ...);
 
 #endif

@@ -73,6 +73,9 @@ uboss_context_new(const char * name, const char *param) {
 		return NULL; // 直接返回
 
 	// 找到模块，则取出 创建函数 的指针
+	// 因为在uboss_module中create函数不存在时，返回值为：
+	// (intptr_t)(~0); 即0xFFFFFFFF（32位地址时）
+	// 所以如果获取的函数为 NULL = 0 时，即表示错误。
 	void *inst = uboss_module_instance_create(mod);
 	if (inst == NULL) // 如果指针为空
 		return NULL; // 直接返回
@@ -81,30 +84,35 @@ uboss_context_new(const char * name, const char *param) {
 	struct uboss_context * ctx = uboss_malloc(sizeof(*ctx));
 	CHECKCALLING_INIT(ctx)
 
-	ctx->mod = mod;
-	ctx->instance = inst;
-	ctx->ref = 2;
-	ctx->cb = NULL;
-	ctx->cb_ud = NULL;
-	ctx->session_id = 0;
-	ctx->logfile = NULL;
+	ctx->mod = mod; // 模块的指针
+	ctx->instance = inst; // 模块的创建函数的指针
+	ctx->ref = 2; // 模块的消息队列槽的大小值
+	ctx->cb = NULL; // 模块的回调函数的指针
+	ctx->cb_ud = NULL; // 用户数据的指针
+	ctx->session_id = 0; // 服务的会话ID
+	ctx->logfile = NULL; // 是否开启日志记录到文件功能
 
-	ctx->init = false;
-	ctx->endless = false;
+	ctx->init = false; // 是否初始化
+	ctx->endless = false; // 是否进入了无限循环
+
+	// 应该先设置句柄为0,以避免 uboss_handle_retireall 回收时获得一个为初始化的句柄。
 	// Should set to 0 first to avoid uboss_handle_retireall get an uninitialized handle
 	ctx->handle = 0; // 先赋值为0，分配内存空间
 	ctx->handle = uboss_handle_register(ctx); // 再注册到句柄注册中心，获得句柄值
-	struct message_queue * queue = ctx->queue = uboss_mq_create(ctx->handle); // 创建消息队列
+
+	// 初始化函数也许需要使用 ctx->handle ，因为它必须在最后。
 	// init function maybe use ctx->handle, so it must init at last
+	struct message_queue * queue = ctx->queue = uboss_mq_create(ctx->handle); // 创建消息队列
+
 	context_inc(); // 上下文 加一
 
 	CHECKCALLING_BEGIN(ctx)
-	int r = uboss_module_instance_init(mod, inst, ctx, param); // 从模块指针中获取 初始化函数的指针
+	int r = uboss_module_instance_init(mod, inst, ctx, param); // 从模块指针中获取 初始化函数的指针（模块中必须有的函数）
 	CHECKCALLING_END(ctx)
 	if (r == 0) { // 初始化函数返回值为0，表示正常。
 		struct uboss_context * ret = uboss_context_release(ctx); // 检查上下文释放标志 ref 是否为0
 		if (ret) {
-			ctx->init = true;
+			ctx->init = true; // 设置服务的上下文结构，初始化成功。
 		}
 		uboss_globalmq_push(queue); // 将消息压入全局消息队列
 		if (ret) {
@@ -216,11 +224,16 @@ dispatch_message(struct uboss_context *ctx, struct uboss_message *msg) {
 
 	int reserve_msg;
 	if (ctx->profile) {
-		ctx->cpu_start = uboss_thread_time();
+		// 这里获得线程开始的时间，然后执行返回函数，再调用时间
+		// 最后计算整个服务中的返回函数一共执行了多少时间。
+		ctx->cpu_start = uboss_thread_time(); // 获得开始时间
+
+		// 调用 服务模块中的返回函数
 		reserve_msg = ctx->cb(ctx, ctx->cb_ud, type, msg->session, msg->source, msg->data, sz);
-		uint64_t cost_time = uboss_thread_time() - ctx->cpu_start;
-		ctx->cpu_cost += cost_time;
+		uint64_t cost_time = uboss_thread_time() - ctx->cpu_start; // 获得结束时间，并计算消耗时间
+		ctx->cpu_cost += cost_time; // 累计消耗的时间
 	} else {
+		// 核心功能：调用服务中定义的返回函数
 		// 调用 服务模块中的返回函数
 		reserve_msg = ctx->cb(ctx, ctx->cb_ud, type, msg->session, msg->source, msg->data, sz);
 	}
@@ -304,7 +317,9 @@ uboss_context_message_dispatch(struct uboss_monitor *sm, struct message_queue *q
 	assert(q == ctx->queue);
 	struct message_queue *nq = uboss_globalmq_pop();
 	if (nq) {
+		// 如果全局消息队列不为空，压入q后，并返回下一个消息队列 nq
 		// If global mq is not empty , push q back, and return next queue (nq)
+		// 否则，全局消息队列为空或则阻塞，不压入q后，并返回 q，再一次调度
 		// Else (global mq is empty or block, don't push q back, and return q again (for next dispatch)
 		uboss_globalmq_push(q);
 		q = nq;

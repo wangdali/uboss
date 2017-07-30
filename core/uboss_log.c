@@ -10,7 +10,7 @@
 
 #include "uboss.h"
 #include "uboss_handle.h"
-#include "uboss_server.h"
+#include "uboss_context.h"
 #include "uboss_mq.h"
 #include "uboss_log.h"
 #include "uboss_timer.h"

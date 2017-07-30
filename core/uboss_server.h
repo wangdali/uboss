@@ -33,6 +33,12 @@ struct uboss_node {
 //static struct uboss_node G_NODE;
 struct uboss_node G_NODE;
 
+uint32_t uboss_queryname(struct uboss_context * context, const char * name);
+int uboss_send(struct uboss_context * context, uint32_t source, uint32_t destination , int type, int session, void * msg, size_t sz);
+int uboss_sendname(struct uboss_context * context, uint32_t source, const char * destination , int type, int session, void * msg, size_t sz);
+
+int uboss_isremote(struct uboss_context *, uint32_t handle, int * harbor);
+uint32_t uboss_current_handle(void);
 
 void uboss_globalinit(void);
 void uboss_globalexit(void);

@@ -1,8 +1,8 @@
 /*
-** Copyright (c) 2014-2017 uboss.org All rights Reserved.
+** Copyright (c) 2014-2017 uboss.org All rights reserved.
 ** uBoss - A Lightweight MicroService Framework
 **
-** uBoss Command
+** uBoss Text Command
 **
 ** Dali Wang<dali@uboss.org>
 ** See Copyright Notice in uboss.h

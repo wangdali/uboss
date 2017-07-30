@@ -9,6 +9,9 @@
 */
 
 #include "uboss.h"
+#include "uboss_command.h"
+#include "uboss_log.h"
+#include "uboss_server.h"
 
 #include <lua.h>
 #include <lualib.h>
@@ -176,6 +179,8 @@ luavm_init(struct luavm *l, struct uboss_context *ctx, const char * args) {
 	uboss_callback(ctx, l , _launch); // 设置回调函数
 	const char * self = uboss_command(ctx, "REG", NULL); // 执行注册命令
 	uint32_t handle_id = strtoul(self+1, NULL, 16); // 获得 句柄值
+
+	// 它必须时第一个消息
 	// it must be first message
 	uboss_send(ctx, 0, handle_id, PTYPE_TAG_DONTCOPY,0, tmp, sz); // 发送消息到框架
 	return 0;

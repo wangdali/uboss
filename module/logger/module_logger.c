@@ -9,6 +9,7 @@
 */
 
 #include "uboss.h"
+#include "uboss_command.h"
 
 #include <stdio.h>
 #include <stdlib.h>

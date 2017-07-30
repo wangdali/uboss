@@ -24,6 +24,7 @@
 #include <signal.h>
 #include <assert.h>
 
+// 复制字符串
 char *
 uboss_strdup(const char *str) {
 	size_t sz = strlen(str);

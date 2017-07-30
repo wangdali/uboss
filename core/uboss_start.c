@@ -9,6 +9,7 @@
 */
 
 #include "uboss.h"
+#include "uboss_context.h"
 #include "uboss_server.h"
 #include "uboss_start.h"
 #include "uboss_mq.h"
@@ -16,6 +17,7 @@
 #include "uboss_module.h"
 #include "uboss_timer.h"
 #include "uboss_monitor.h"
+#include "uboss_log.h"
 
 #include <pthread.h>
 #include <unistd.h>
@@ -130,9 +132,11 @@ thread_worker(void *p) {
 	struct monitor *m = wp->m;
 	struct uboss_monitor *sm = m->m[id];
 	uboss_initthread(THREAD_WORKER); // 初始化线程
-	struct message_queue * q = NULL;
+	struct message_queue * q = NULL; // 传入NULL消息队列，便于从全局队列中弹出一个消息队列
 	while (!m->quit) {
 		q = uboss_context_message_dispatch(sm, q, weight); // 核心功能: 从消息队列中取出服务的消息
+
+		// 如果全局消息队列中没有任何消息
 		if (q == NULL) {
 			if (pthread_mutex_lock(&m->mutex) == 0) { // 设置互斥锁
 				++ m->sleep;
