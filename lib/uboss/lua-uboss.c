@@ -9,6 +9,11 @@
 */
 
 #include "uboss.h"
+#include "uboss_context.h"
+#include "uboss_command.h"
+#include "uboss_server.h"
+#include "uboss_timer.h"
+#include "uboss_log.h"
 #include "lua-seri.h"
 
 #define KNRM  "\x1B[0m"

@@ -74,9 +74,9 @@ copy_name(char name[GLOBALNAME_LENGTH], const char * addr) {
 uint32_t
 uboss_queryname(struct uboss_context * context, const char * name) {
 	switch(name[0]) { // 取出第一个字符
-	case ':': // 冒号，为字符串名称，直接返回
+	case ':': // 冒号，为数字型名称，需要操作后返回
 		return strtoul(name+1,NULL,16);
-	case '.': // 点，为数字型名称，需要操作后返回
+	case '.': // 点，为字符串名称，直接返回
 		return uboss_handle_findname(name + 1);
 	}
 	uboss_error(context, "Don't support query global name %s",name);

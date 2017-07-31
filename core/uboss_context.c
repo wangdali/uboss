@@ -133,6 +133,7 @@ uboss_context_new(const char * name, const char *param) {
 // 新建会话
 int
 uboss_context_newsession(struct uboss_context *ctx) {
+	// 会话ID总是一个正整数
 	// session always be a positive number
 	int session = ++ctx->session_id;
 	if (session <= 0) { // 如果会话ID小于等于0
